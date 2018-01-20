@@ -37,7 +37,7 @@ class ScoreDoc(object):
         self.resume = [pdf_to_text(doc_path)]
 
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
-                       ngram_range=(1, 2), stop_words=None):
+                       ngram_range=(1, 3), stop_words=None):
 
         tfidf = TfidfVectorizer(
             preprocessor=lambda x: normalize_text(
@@ -104,10 +104,10 @@ class ScoreDoc(object):
 if __name__ == '__main__':
 
     corpora = ["test.txt"]
-    doc_path = "../data/sabbir.pdf"
+    doc_path = "../data/jaime.pdf"
 
     # Locations
-    IGNORE_TERMS = ["baltimore", "md", "maryland"]
+    IGNORE_TERMS = ["baltimore", "md", "maryland", "philadelphia"]
 
     # Names
     IGNORE_TERMS += [
@@ -116,6 +116,6 @@ if __name__ == '__main__':
 
     obj = ScoreDoc(doc_path, corpora, ".")
     obj.generate_tfidf(stop_words="english", ignore_terms=IGNORE_TERMS)
-    tfidf_data = obj.get_score(top_tfidf=5)
+    tfidf_data = obj.get_score(top_tfidf=20)
     dump_data(tfidf_data, "resume_scores.json")
     plot_tfidf(tfidf_data)

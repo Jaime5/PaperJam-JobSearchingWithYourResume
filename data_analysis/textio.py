@@ -24,6 +24,7 @@ def pdf_to_text(file_path, parsed_path=PARSED_PATH):
         parsed_text = pdftotext.PDF(pdf_file)
 
     print("done")
+    print(" ".join(parsed_text))
     return " ".join(parsed_text)
 
 
