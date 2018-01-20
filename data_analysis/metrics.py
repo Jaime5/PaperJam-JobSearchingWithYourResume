@@ -10,6 +10,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
+from plots import plot_tfidf
 from textio import pdf_to_text, lsfile
 from textutil import normalize_text
 
@@ -41,7 +42,7 @@ class ScoreDoc(object):
         self.resume = [pdf_to_text(doc_path)]
 
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
-                       ngram_range=(1, 5), stop_words=None):
+                       ngram_range=(1, 2), stop_words=None):
 
         tfidf = TfidfVectorizer(
             preprocessor=lambda x: normalize_text(
@@ -55,38 +56,59 @@ class ScoreDoc(object):
         self.tfidf_matrix = tfidf.fit_transform(self.resume + self.corpus)
         self.feature_names = tfidf.get_feature_names()
 
-    def get_score(self, file_name="resume_scores.json", top=5):
+    def get_score(self, top_docs=5, top_tfidf=0):
 
+        # find the cosine similarity between the target doc with corpus
         cos_sim = linear_kernel(
             self.tfidf_matrix[:1], self.tfidf_matrix).flatten()[1:]
-        top_indices = cos_sim.argsort()[:-(top + 1):-1]
-        print(cos_sim)
 
-        resume_names = np.asarray(self.train_resumes)
-        resume_names = list(resume_names[top_indices])
-        resume_names = [
-            {
-                "index": i,
-                "label": j.split("/")[1],
-                "name": j.split("/")[-1],
-            } for i, j in enumerate(resume_names)
-        ]
+        resume_names = []
+
+        #  if corpus contains multiple documents
+        if (len(self.train_resumes) > 1):
+
+            # get the 'top' docs with highest cosine similarity
+            top_indices = cos_sim.argsort()[:-(top_docs + 1):-1]
+
+            resume_names = np.asarray(self.train_resumes)
+            resume_names = list(resume_names[top_indices])
+            resume_names = [
+                {
+                    "index": i,
+                    "label": j.split("/")[1],
+                    "name": j.split("/")[-1],
+                } for i, j in enumerate(resume_names)
+            ]
 
         feature_index = self.tfidf_matrix[0].nonzero()[1]
         tfidf_scores = zip(
             feature_index, (self.tfidf_matrix[0, i] for i in feature_index)
         )
-        tfidf_scores_features = dict(
+        tfidf_scores_feats = dict(
             (self.feature_names[i], s) for (i, s) in tfidf_scores
         )
 
-        data = {
-            "top_docs": resume_names,
-            "tfidf_scores": tfidf_scores_features,
+        if (not top_tfidf):
+
+            return {
+                "cos_sim": list(cos_sim),
+                "top_docs": resume_names,
+                "tfidf_scores": tfidf_scores_feats,
+            }
+
+        top_scores = sorted(set(tfidf_scores_feats.values()),
+                            reverse=True)[:top_tfidf]
+        top_tfidf_scores_feats = {
+            i: v for i, v in tfidf_scores_feats.items() if v in top_scores
         }
 
-        from pprint import pprint
-        pprint(sorted(data["tfidf_scores"].items(), key=lambda x: x[-1]))
+        return {
+            "cos_sim": list(cos_sim),
+            "top_docs": resume_names,
+            "tfidf_scores": top_tfidf_scores_feats,
+        }
+
+    def dump_data(self, data, file_name="resume_scores.json"):
 
         with open(file_name, "w") as out_file:
             json.dump(data, out_file)
@@ -97,8 +119,16 @@ if __name__ == '__main__':
     corpora = ["test.txt"]
     doc_path = "../data/sabbir.pdf"
 
-    obj = ScoreDoc(doc_path, corpora, ".")
-    obj.generate_tfidf(stop_words="english", ignore_terms=["justin", "chavez"])
+    # Locations
+    IGNORE_TERMS = ["baltimore", "md", "maryland"]
 
-    # print("yo", obj.train_resumes)
-    obj.get_score()
+    # Names
+    IGNORE_TERMS += [
+        "sabbir", "ahmed", "justin", "chavez", "jaime", "orellana"
+    ]
+
+    obj = ScoreDoc(doc_path, corpora, ".")
+    obj.generate_tfidf(stop_words="english", ignore_terms=IGNORE_TERMS)
+    tfidf_data = obj.get_score(top_tfidf=5)
+
+    plot_tfidf(tfidf_data)
