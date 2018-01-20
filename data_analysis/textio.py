@@ -10,7 +10,8 @@ from __future__ import print_function, unicode_literals
 from glob import glob
 import json
 from os import path
-import subprocess
+
+import pdftotext
 
 PARSED_PATH = "output.txt"
 
@@ -19,12 +20,8 @@ def pdf_to_text(file_path, parsed_path=PARSED_PATH):
 
     print("Parsing \'%s\'..." % path.basename(file_path), end=" ")
 
-    subprocess.call(["pdftotext", file_path, parsed_path])
-
-    with open(parsed_path) as parsed_file:
-        parsed_text = (
-            line.decode("utf-8").strip() for line in parsed_file.readlines()
-        )
+    with open(file_path, "rb") as pdf_file:
+        parsed_text = pdftotext.PDF(pdf_file)
 
     print("done")
     return " ".join(parsed_text)
