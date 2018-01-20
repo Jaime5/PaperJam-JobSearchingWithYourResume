@@ -37,9 +37,3 @@ def dump_data(data, file_name):
 
     with open(file_name, "w") as out_file:
         json.dump(data, out_file)
-
-
-if __name__ == '__main__':
-
-    hard_coded_path = "../data/justin.pdf"
-    pdf_to_text(hard_coded_path)

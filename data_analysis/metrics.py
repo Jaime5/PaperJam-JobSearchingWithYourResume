@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals
+from __future__ import print_function, unicode_literals
 
 from os import path
 
@@ -37,7 +37,7 @@ class ScoreDoc(object):
         self.resume = [pdf_to_text(doc_path)]
 
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
-                       ngram_range=(1, 3), stop_words=None):
+                       ngram_range=(1, 10), stop_words=None):
 
         tfidf = TfidfVectorizer(
             preprocessor=lambda x: normalize_text(
@@ -80,10 +80,13 @@ class ScoreDoc(object):
 
         if (not top_tfidf):
 
+            scores = tfidf_scores_feats.values()
             return {
                 "cos_sim": list(cos_sim),
                 "top_docs": resume_names,
                 "tfidf_scores": tfidf_scores_feats,
+                "tfidf_mean": np.mean(scores),
+                "tfidf_med": np.median(scores),
             }
 
         top_scores = sorted(
@@ -103,8 +106,8 @@ class ScoreDoc(object):
 
 if __name__ == '__main__':
 
-    corpora = ["test.txt"]
-    doc_path = "../data/jaime.pdf"
+    corpora = ["job_desc.txt"]
+    doc_path = "../data/sabbir.pdf"
 
     # Locations
     IGNORE_TERMS = ["baltimore", "md", "maryland", "philadelphia"]

@@ -3,8 +3,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from string import punctuation
-
 from dateutil import parser as date_parser
 from nltk import pos_tag
 from nltk.corpus import wordnet as wn
@@ -32,10 +30,7 @@ def penn_to_wn(tag):
 
 def normalize_text(content, ignore_terms=[]):
 
-    norm_text = content.encode("ascii", "ignore").lower()
-
-    for punc in punctuation:
-        norm_text = norm_text.replace(punc, " ")
+    norm_text = content.encode("ascii", "ignore")
 
     # offset: index offset for start of word.
 
@@ -50,6 +45,9 @@ def normalize_text(content, ignore_terms=[]):
                                      support=2)
 
     annotations = [i["surfaceForm"] for i in annotations]
+    from pprint import pprint
+    pprint(annotations)
+
     annotations = (
         word for word in annotations
         if not any([x in word for x in ignore_terms])
@@ -71,4 +69,4 @@ def normalize_text(content, ignore_terms=[]):
         except (TypeError, ValueError):
             time_filtered.append(word)
 
-    return " ".join(filter(None, time_filtered))
+    return " ".join(filter(None, time_filtered)).lower()
