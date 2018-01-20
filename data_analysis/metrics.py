@@ -3,7 +3,6 @@
 
 from __future__ import absolute_import, unicode_literals
 
-import json
 from os import path
 
 import numpy as np
@@ -11,7 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
 from plots import plot_tfidf
-from textio import pdf_to_text, lsfile
+from textio import dump_data, pdf_to_text, lsfile
 from textutil import normalize_text
 
 
@@ -34,10 +33,6 @@ class ScoreDoc(object):
         for resume_file_path in self.train_resumes:
             with open(resume_file_path) as resume_file:
                 self.corpus.append(resume_file.read())
-
-        self.train_resumes = [
-            i.replace(corpus_path, "") for i in self.train_resumes
-        ]
 
         self.resume = [pdf_to_text(doc_path)]
 
@@ -62,23 +57,18 @@ class ScoreDoc(object):
         cos_sim = linear_kernel(
             self.tfidf_matrix[:1], self.tfidf_matrix).flatten()[1:]
 
-        resume_names = []
+        # get the 'top' docs with highest cosine similarity
+        top_indices = cos_sim.argsort()[:-(top_docs + 1):-1]
 
-        #  if corpus contains multiple documents
-        if (len(self.train_resumes) > 1):
-
-            # get the 'top' docs with highest cosine similarity
-            top_indices = cos_sim.argsort()[:-(top_docs + 1):-1]
-
-            resume_names = np.asarray(self.train_resumes)
-            resume_names = list(resume_names[top_indices])
-            resume_names = [
-                {
-                    "index": i,
-                    "label": j.split("/")[1],
-                    "name": j.split("/")[-1],
-                } for i, j in enumerate(resume_names)
-            ]
+        resume_names = np.asarray(self.train_resumes)
+        resume_names = list(resume_names[top_indices])
+        resume_names = [
+            {
+                "index": i,
+                "name": j,
+            } for i, j in enumerate(resume_names)
+        ]
+        print(resume_names)
 
         feature_index = self.tfidf_matrix[0].nonzero()[1]
         tfidf_scores = zip(
@@ -108,11 +98,6 @@ class ScoreDoc(object):
             "tfidf_scores": top_tfidf_scores_feats,
         }
 
-    def dump_data(self, data, file_name="resume_scores.json"):
-
-        with open(file_name, "w") as out_file:
-            json.dump(data, out_file)
-
 
 if __name__ == '__main__':
 
@@ -130,5 +115,5 @@ if __name__ == '__main__':
     obj = ScoreDoc(doc_path, corpora, ".")
     obj.generate_tfidf(stop_words="english", ignore_terms=IGNORE_TERMS)
     tfidf_data = obj.get_score(top_tfidf=5)
-
+    dump_data(tfidf_data, "resume_scores.json")
     plot_tfidf(tfidf_data)

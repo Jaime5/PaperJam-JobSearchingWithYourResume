@@ -8,6 +8,7 @@
 from __future__ import print_function, unicode_literals
 
 from glob import glob
+import json
 from os import path
 import subprocess
 
@@ -25,13 +26,19 @@ def pdf_to_text(file_path, parsed_path=PARSED_PATH):
             line.decode("utf-8").strip() for line in parsed_file.readlines()
         )
 
-    print("Done")
+    print("done")
     return " ".join(parsed_text)
 
 
 def lsfile(*data_dir):
 
     return glob(path.join(*data_dir))
+
+
+def dump_data(data, file_name):
+
+    with open(file_name, "w") as out_file:
+        json.dump(data, out_file)
 
 
 if __name__ == '__main__':
