@@ -1,27 +1,32 @@
-JPPA (Jackson Perkins Park Acquisitions) is the leading direct marketer of roses, perennials, annuals, and outdoor living products in the United States. We have an immediate opening for a Web Developer to help propel our sites to the next level.
+North Point Defense is seeking a software engineer, proficient in C programming, to join its team in Rome, NY. This is a full-time position with flexible hours. Candidates must have a strong programming background with an ability to work as part of a diverse team as well as independently.
 
-As our Web Developer you will be responsible for creating and optimizing user flows and wireframes to ultimately producing the ideal user experience across our web properties including JacksonandPerkins.com, ParkSeed.com, WaysideGardens.com.
+Required Skills:
 
-The successful candidate thinks carefully about the strategy behind how a user interacts with a web application in desktop, tablet, and mobile, and brings vast knowledge of browser capabilities, HTML 5, CSS, JavaScript and Query to the table.
+C programming experience with a thorough understanding of pointers, structs and I/O.
+Knowledge of network programming and protocols (TCP, UDP).
+Experience with the Linux environment and comfortable with the command line interface.
+Experience with threading and concurrency (PThreads).
+Working knowledge of GNU development and debugging tools (Autotools, GDB, Make, ...).
+Experience with version control systems (Git).
+Ideal History Would Include:
 
-Starting early in the design process, our design team will rely on your input to produce web-capable designs which you turn into a stunning reality. You’ll not only be relied on to expertly navigate the nuances of browser rendering, but you’ll also learn from a seasoned team of performance, design, and development experts.
+Knowledge and experience with Redhat (CentOS) Linux operating system.
+Programming experience with Python and/or Shell Scripting.
+Knowledge and experience with SDR technologies and environments.
+Knowledge and experience with embedded processing environments.
+Programming experience with GUI development (GTK/Qt).
+Education Requirements:
 
-Job Responsibilities
+BS in Computer Science or related discipline with requisite experience.
+Other Requirements:
 
-Create new web pages and user flows that follow existing web standards
-Improve current user interface design to promote better experience for end users
-Design and code web page layouts and landing pages
-Collaborate with design team to develop user flows and wireframes for new and existing features and functionality
-Optimize all design elements for multiple devices, browsers, and operating systems.
-Skills Required
+Must be a US citizen.
+Applicants selected will be subject to a security investigation and may need to meet eligibility requirements for access to classified information.
+Current TS/SCI a strong plus.
+Job Type: Full-time
 
-Minimum 3 years of web development experience leveraging a variety of technologies for all screens (desktop, tablet, mobile)
-Ability to hand-code pages from scratch and full understanding of HTML 5/CSS3
-Solid knowledge of Photoshop, Illustrator to produce pixel-perfect Photoshop comps for web pages
-Solid understanding of web design best practices and progressive enhancement
-Comprehensive knowledge of W3C standards compliant front-end HTML, CSS, jQuery, JavaScript
-Advanced knowledge of cross-browser compatibility
-Knowledge of responsive design
-Experience with e-commerce platforms and e-commerce technologies a plus
-Mobile/Tablet development experience a plus
-Mobile APP development experience a plus
+Job Type: Full-time
+
+Required education:
+
+Bachelor's
