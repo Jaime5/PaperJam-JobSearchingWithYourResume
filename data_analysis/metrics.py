@@ -68,7 +68,6 @@ class ScoreDoc(object):
                 "name": j,
             } for i, j in enumerate(resume_names)
         ]
-        print(resume_names)
 
         feature_index = self.tfidf_matrix[0].nonzero()[1]
         tfidf_scores = zip(
@@ -86,8 +85,10 @@ class ScoreDoc(object):
                 "tfidf_scores": tfidf_scores_feats,
             }
 
-        top_scores = sorted(set(tfidf_scores_feats.values()),
-                            reverse=True)[:top_tfidf]
+        top_scores = sorted(
+            set(tfidf_scores_feats.values()),
+            reverse=True
+        )[:top_tfidf]
         top_tfidf_scores_feats = {
             i: v for i, v in tfidf_scores_feats.items() if v in top_scores
         }
