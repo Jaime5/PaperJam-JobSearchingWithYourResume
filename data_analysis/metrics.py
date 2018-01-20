@@ -10,9 +10,8 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
-from . import BUZZWORDS
-from .textio import lsfile, pdf_to_text
-from .textutil import normalize_text
+from textio import pdf_to_text, lsfile
+from textutil import normalize_text
 
 
 class ScoreDoc(object):
@@ -28,7 +27,8 @@ class ScoreDoc(object):
             if not path.exists(path.join(corpus_path, corpus)):
                 raise IOError("No files found in corpus \"{}\"".format(corpus))
 
-            self.train_resumes.extend(lsfile(corpus_path, corpus, "*.txt"))
+            print(lsfile(corpus_path, corpus))
+            self.train_resumes.extend(lsfile(corpus_path, corpus))
 
         for resume_file_path in self.train_resumes:
             with open(resume_file_path) as resume_file:
@@ -40,12 +40,8 @@ class ScoreDoc(object):
 
         self.resume = [pdf_to_text(doc_path)]
 
-        self.buzzwords = {}
-        with open(BUZZWORDS) as buzzwords_file:
-            self.buzzwords = json.load(buzzwords_file)
-
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
-                       ngram_range=(1, 3), stop_words=None):
+                       ngram_range=(1, 5), stop_words=None):
 
         tfidf = TfidfVectorizer(
             preprocessor=lambda x: normalize_text(
@@ -63,10 +59,11 @@ class ScoreDoc(object):
 
         cos_sim = linear_kernel(
             self.tfidf_matrix[:1], self.tfidf_matrix).flatten()[1:]
-        top_indicies = cos_sim.argsort()[:-(top + 1):-1]
+        top_indices = cos_sim.argsort()[:-(top + 1):-1]
+        print(cos_sim)
 
         resume_names = np.asarray(self.train_resumes)
-        resume_names = list(resume_names[top_indicies])
+        resume_names = list(resume_names[top_indices])
         resume_names = [
             {
                 "index": i,
@@ -83,25 +80,25 @@ class ScoreDoc(object):
             (self.feature_names[i], s) for (i, s) in tfidf_scores
         )
 
-        buzzwords = dict(
-            (self.feature_names[i], self.is_buzzword(self.feature_names[i]))
-            for (i, _) in tfidf_scores
-        )
-        buzzwords = {k: v for k, v in buzzwords.iteritems() if v}
-
         data = {
             "top_docs": resume_names,
             "tfidf_scores": tfidf_scores_features,
-            "buzzwords": buzzwords,
         }
+
+        from pprint import pprint
+        pprint(sorted(data["tfidf_scores"].items(), key=lambda x: x[-1]))
 
         with open(file_name, "w") as out_file:
             json.dump(data, out_file)
 
-    def is_buzzword(self, term):
 
-        for category, buzzwords_list in self.buzzwords.items():
-            for buzzword in buzzwords_list:
-                buzzword = buzzword.split() + [buzzword]
-                if term in buzzword:
-                    return category
+if __name__ == '__main__':
+
+    corpora = ["test.txt"]
+    doc_path = "../data/sabbir.pdf"
+
+    obj = ScoreDoc(doc_path, corpora, ".")
+    obj.generate_tfidf(stop_words="english", ignore_terms=["justin", "chavez"])
+
+    # print("yo", obj.train_resumes)
+    obj.get_score()

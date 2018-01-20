@@ -5,13 +5,13 @@
 """parse
 """
 
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import print_function, unicode_literals
 
 from glob import glob
 from os import path
 import subprocess
 
-from . import HTML_CONVERTED_OUT, HTML_CONVERTED_PATH, PARSED_PATH
+PARSED_PATH = "output.txt"
 
 
 def pdf_to_text(file_path, parsed_path=PARSED_PATH):
@@ -29,27 +29,12 @@ def pdf_to_text(file_path, parsed_path=PARSED_PATH):
     return " ".join(parsed_text)
 
 
-def pdf_to_html(file_path):
-
-    if not path.exists(HTML_CONVERTED_OUT):
-        subprocess.call(
-            ["pdftohtml", "-s", "-c", "-q", file_path, HTML_CONVERTED_PATH]
-        )
-
-    with open(HTML_CONVERTED_OUT) as parsed_file:
-        parsed_html = (
-            line.decode("utf-8").strip() for line in parsed_file.readlines()
-        )
-
-    return parsed_html
-
-
-def save_html(content, file_path="target_doc.html"):
-
-    with open(file_path, "w") as html_file:
-        html_file.write(content)
-
-
 def lsfile(*data_dir):
 
     return glob(path.join(*data_dir))
+
+
+if __name__ == '__main__':
+
+    hard_coded_path = "../data/justin.pdf"
+    pdf_to_text(hard_coded_path)
