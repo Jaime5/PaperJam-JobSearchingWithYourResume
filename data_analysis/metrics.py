@@ -46,6 +46,7 @@ class ScoreDoc(object):
             max_features=max_feats,
             ngram_range=ngram_range,
             stop_words=stop_words,
+            min_df=2,
         )
 
         self.tfidf_matrix = tfidf.fit_transform(self.resume + self.corpus)
