@@ -13,8 +13,6 @@ from plots import plot_tfidf
 from textio import dump_data, pdf_to_text, lsfile
 from textutil import normalize_text
 
-import spotlight
-
 
 class ScoreDoc(object):
 
@@ -29,7 +27,6 @@ class ScoreDoc(object):
             if not path.exists(path.join(corpus_path, corpus)):
                 raise IOError("No files found in corpus \"{}\"".format(corpus))
 
-            print(lsfile(corpus_path, corpus))
             self.train_resumes.extend(lsfile(corpus_path, corpus))
 
         for resume_file_path in self.train_resumes:
@@ -37,30 +34,7 @@ class ScoreDoc(object):
 
                 self.corpus.append(resume_file.read())
 
-
-
         self.resume = [pdf_to_text(doc_path)]
-
-        host = "http://model.dbpedia-spotlight.org/en/annotate"
-
-        annotations = spotlight.annotate(host, self.resume[0], confidence=0.5,
-                                         support=20)
-
-        import pprint
-        pprint.pprint(annotations)
-
-
-        # offset: index offset for start of word.
-
-        # similarityScore: uniqueness of word/link or relation of word.
-        # basically keyword is not a synonym the higher the score
-
-        # support: number of links supported with dbpedia, min threshold
-
-        # surfaceForm: keyword itself
-        # uri: the location of other data for the keyword.
-
-
 
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
                        ngram_range=(1, 3), stop_words=None):
@@ -140,8 +114,13 @@ if __name__ == '__main__':
         "sabbir", "ahmed", "justin", "chavez", "jaime", "orellana"
     ]
 
+    IGNORE_TERMS += [
+        "user",
+        "create",
+    ]
+
     obj = ScoreDoc(doc_path, corpora, ".")
     obj.generate_tfidf(stop_words="english", ignore_terms=IGNORE_TERMS)
-    tfidf_data = obj.get_score(top_tfidf=20)
+    tfidf_data = obj.get_score(top_tfidf=0)
     dump_data(tfidf_data, "resume_scores.json")
-    # plot_tfidf(tfidf_data)
+    plot_tfidf(tfidf_data)
