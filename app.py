@@ -63,11 +63,12 @@ def process_job_info():
     job_link = submitted["JobLink"] + ".json"
     file = request.files['file']
 
-    # ALLOWED_EXTENSIONS = set(['pdf'])
-
     response = json.loads(requests.get(job_link).text)
     soup = BeautifulSoup(response["description"], "html.parser")
     doc_path = path.join(BASE_PATH, "uploads", file.filename)
+
+    print(doc_path)
+
     file.save(doc_path)
 
     corpora_path = "job_desc.txt"
@@ -79,10 +80,13 @@ def process_job_info():
     obj.generate_tfidf()
     tfidf_data = obj.get_score()
 
+    import pprint
+    pprint.pprint("tfidf_data")
+
     # MAKE SURE TO CREATE UPLOADS FOLDER
 
-    # return render_template('results.html', results=tfidf_data)
-    return json.dumps(tfidf_data)
+    return render_template('results.html', results=tfidf_data)
+    # return json.dumps(tfidf_data)
 
 
 # @app.route('/about')
