@@ -58,7 +58,6 @@ def home():
 
 @app.route('/process_job_info', methods=["POST"])
 def process_job_info():
-
     submitted = request.form
     job_link = submitted["JobLink"] + ".json"
     file = request.files['file']

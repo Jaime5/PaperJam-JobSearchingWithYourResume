@@ -12,12 +12,14 @@ Colors from PennApps
 
 {% include "navbar.html" %}
 
-<div class="text-center" id="loading" style="width: 300px;
-                        height: 300px;
+<div id="loading" style="width: 1024px;
+                        height: 1024px;
                         display: none;
                         margin:0;
-                        background: url('../static/img/spinner.gif') no-repeat;
-                        cursor: wait;"></div>
+                        background: url('../static/img/pacman.gif') no-repeat;
+                        cursor: wait;">
+                            <h1 class="text-center">Loading ...</h1>
+                        </div>
 
 <div id="content">
     <div class="jumbotron">
@@ -51,6 +53,7 @@ Colors from PennApps
             $("#content").hide();
         }
 // ]]></script>
+
 
 
 
