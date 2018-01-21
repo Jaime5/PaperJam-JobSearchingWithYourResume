@@ -37,7 +37,7 @@ class ScoreDoc(object):
         self.resume = [pdf_to_text(doc_path)]
 
     def generate_tfidf(self, ignore_terms=[], max_feats=None,
-                       ngram_range=(1, 10), stop_words=None):
+                       ngram_range=(1, 10), stop_words="english"):
 
         tfidf = TfidfVectorizer(
             preprocessor=lambda x: normalize_text(
@@ -106,24 +106,25 @@ class ScoreDoc(object):
 
 if __name__ == '__main__':
 
+    doc_path = "data/sabbir.pdf"
     corpora = ["job_desc.txt"]
-    doc_path = "../data/sabbir.pdf"
 
-    # Locations
-    IGNORE_TERMS = ["baltimore", "md", "maryland", "philadelphia"]
+    IGNORE_TERMS = []
+    # # Locations
+    # IGNORE_TERMS = ["baltimore", "md", "maryland", "philadelphia"]
 
-    # Names
-    IGNORE_TERMS += [
-        "sabbir", "ahmed", "justin", "chavez", "jaime", "orellana"
-    ]
+    # # Names
+    # IGNORE_TERMS += [
+    #     "sabbir", "ahmed", "justin", "chavez", "jaime", "orellana"
+    # ]
 
-    IGNORE_TERMS += [
-        "user",
-        "create",
-    ]
+    # IGNORE_TERMS += [
+    #     "user",
+    #     "create",
+    # ]
 
     obj = ScoreDoc(doc_path, corpora, ".")
-    obj.generate_tfidf(stop_words="english", ignore_terms=IGNORE_TERMS)
-    tfidf_data = obj.get_score(top_tfidf=0)
+    obj.generate_tfidf(ignore_terms=IGNORE_TERMS)
+    tfidf_data = obj.get_score()
     dump_data(tfidf_data, "resume_scores.json")
     plot_tfidf(tfidf_data)

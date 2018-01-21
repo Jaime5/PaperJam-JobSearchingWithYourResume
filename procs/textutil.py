@@ -45,8 +45,8 @@ def normalize_text(content, ignore_terms=[]):
                                      support=2)
 
     annotations = [i["surfaceForm"] for i in annotations]
-    from pprint import pprint
-    pprint(annotations)
+    # from pprint import pprint
+    # pprint(annotations)
 
     annotations = (
         word for word in annotations
