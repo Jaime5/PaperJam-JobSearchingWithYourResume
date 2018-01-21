@@ -81,14 +81,9 @@ def process_job_info():
 
     # MAKE SURE TO CREATE UPLOADS FOLDER
 
-    return render_template('results.html', results=tfidf_data)
-    # return json.dumps(tfidf_data)
+    # return render_template('results.html', results=tfidf_data)
+    return json.dumps(tfidf_data)
 
-
-@app.route('/job_results')
-def job_results():
-    # TODO: Pass back what was calculated using pasbacks
-    return None
 
 # @app.route('/about')
 # def about():
