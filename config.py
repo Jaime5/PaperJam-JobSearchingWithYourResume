@@ -1,7 +1,4 @@
-import os
-
-# Grabs the folder where the script runs.
-basedir = os.path.abspath(os.path.dirname(__file__))
+from os import makedirs, path
 
 # Enable debug mode.
 DEBUG = True
@@ -10,7 +7,9 @@ DEBUG = True
 # https://randomkeygen.com/
 SECRET_KEY = 'my precious'
 
-# Connect to the database
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'database.db')
+BASE_PATH = path.dirname(path.abspath(__file__))
+UPLOAD_FOLDER = path.join(BASE_PATH, "uploads")
 
-UPLOAD_FOLDER = "/uploads"
+# MAKE SURE TO CREATE UPLOADS FOLDER
+if not path.exists(UPLOAD_FOLDER):
+    makedirs(UPLOAD_FOLDER)
