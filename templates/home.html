@@ -10,7 +10,33 @@ Colors from PennApps
 
 {% block content %}
 
-{% include "navbar.html" %}
+{# {% include "navbar.html" %} #}
+
+
+
+
+<header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="intro-text">
+                    <span class="name">
+                        <img src="{{ url_for('static', filename = 'img/logo.png') }}" align="center">
+                    </span>
+
+                    <p>
+                    Let us help you get apply to the job you match
+                    most closely and land you a job! :)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</header>
+
+{#
 
 <div id="loading" style="width: 1024px;
                         height: 1024px;
@@ -24,9 +50,7 @@ Colors from PennApps
 <div id="content">
     <div class="jumbotron">
         <h1>Jam!</h1>
-        <p>
-        Let us help you get apply to the job you match
-        most closely and land you a job! :)
+        
         p</p>
     </div>
 
@@ -55,7 +79,7 @@ Colors from PennApps
 // ]]></script>
 
 
-
+#}
 
 
 {% endblock %}
