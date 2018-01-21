@@ -2,12 +2,14 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 # from flask.ext.sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from forms import *
 import os
+
+from werkzeug.utils import secure_filename
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -45,6 +47,34 @@ def login_required(test):
 def home():
     return render_template('home.html')
 
+@app.route('/process_job_info', methods=["POST"])
+def process_job_info():
+
+    submitted = request.form
+    job_link = submitted["JobLink"]
+
+    job_link += ".json"
+
+    # TOOD: do requests json on this link, make sure to handle
+    # invalid links.
+
+    # ALLOWED_EXTENSIONS = set(['pdf'])
+
+    file = request.files['file']
+    if file:
+
+        path = "/Users/jaime/Downloads/Jam/uploads"
+
+        print(file.save(os.path.join(path, file.filename)))
+
+
+
+    return render_template('')
+
+@app.route('/job_results')
+def job_results():
+    # TODO: Pass back what was calculated using pasbacks
+    return None
 
 # @app.route('/about')
 # def about():

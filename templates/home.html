@@ -20,14 +20,14 @@ Colors from PennApps
     </p>
 </div>
 
-<form>
+<form action="/process_job_info" method="POST" enctype=multipart/form-data>
     <div class="form-group">
-        <label for="indeedLink">Indeed Link (Job link, can be any)</label>
-        <input type="text" class="form-control" id="indeedLink" placeholder="Email">
+        <label for="JobLink">Job link, can be any</label>
+        <input type="text" class="form-control" name="JobLink" placeholder="Email">
     </div>
     <div class="form-group">
         <label for="InputFile">Attach resume (PDF only)</label>
-        <input type="file" id="InputFile">
+        <input type="file" id="InputFile" name="file">
     </div>
     <button type="submit" class="btn btn-default">See your score!</button>
     </form>
