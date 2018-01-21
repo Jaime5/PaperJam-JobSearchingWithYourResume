@@ -12,14 +12,33 @@ Colors from PennApps
 
 {% include "navbar.html" %}
 
-<div class="jumbotron">
-    <h1>Jam!</h1>
-    <p>
-    Let us help you get apply to the job you match
-    most closely and land you a job! :)
-    </p>
-</div>
 
+<div class="lead">
+
+    <h1>Matching Score</h1>
+
+    <h5>
+        Calculated using cosine similarity and using IT/CTF
+    </h5>
+
+    <h3>{{ results["cos_sim"][0] }}</h3>
+
+    <hr>
+
+    <h1>Keywords Matching</h1>
+
+
+    <ol>
+        {% for keyword in results["tfidf_scores"] %}
+
+            <li>
+                {{keyword}}
+            </li>
+
+        {% endfor %}
+    </ol>
+
+</div>
 
 
 {% endblock %}

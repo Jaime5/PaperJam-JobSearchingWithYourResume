@@ -63,9 +63,6 @@ def process_job_info():
     job_link = submitted["JobLink"] + ".json"
     file = request.files['file']
 
-    # TOOD: do requests json on this link, make sure to handle
-    # invalid links.
-
     # ALLOWED_EXTENSIONS = set(['pdf'])
 
     response = json.loads(requests.get(job_link).text)
@@ -82,7 +79,10 @@ def process_job_info():
     obj.generate_tfidf()
     tfidf_data = obj.get_score()
 
-    return json.dumps(tfidf_data)
+    # MAKE SURE TO CREATE UPLOADS FOLDER
+
+    return render_template('results.html', results=tfidf_data)
+    # return json.dumps(tfidf_data)
 
 
 @app.route('/job_results')
