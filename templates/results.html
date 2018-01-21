@@ -18,10 +18,10 @@ Colors from PennApps
     <h1>Matching Score</h1>
 
     <h5>
-        Calculated using cosine similarity and using IT/CTF
+        Calculated using cosine similarity and using TF-ICF (Term Frequency Inverse Corpus Frequency)
     </h5>
 
-    <h3>{{ (results["cos_sim"][0] * 100)|round(1) }}%</h3>
+    <h3>{{ (results["cos_sim"][0] * 100) | round(1) }}%</h3>
 
     <hr>
 
@@ -29,10 +29,10 @@ Colors from PennApps
 
 
     <ol>
-        {% for keyword in results["tfidf_scores"] %}
+        {% for keyword, value in results["tfidf_scores"] %}
 
             <li>
-                {{keyword}}
+                {{ keyword }}, {{ value }}
             </li>
 
         {% endfor %}
