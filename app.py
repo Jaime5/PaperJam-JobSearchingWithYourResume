@@ -78,7 +78,7 @@ def process_job_info():
     with open(corpora_path, "w") as dump_file:
         dump_file.write(soup.get_text().encode("utf-8"))
 
-    obj = ScoreDoc(doc_path, [corpora_path], ".")
+    obj = ScoreDoc(doc_path, [corpora_path], BASE_PATH)
     obj.generate_tfidf()
     tfidf_data = obj.get_score()
 
