@@ -2,14 +2,21 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template, request, url_for
-# from flask.ext.sqlalchemy import SQLAlchemy
+import json
 import logging
 from logging import Formatter, FileHandler
+from os import path
+
+from bs4 import BeautifulSoup
+from flask import Flask, render_template, request, url_for
 from forms import *
-import os
+import requests
+# from flask.ext.sqlalchemy import SQLAlchemy
 
 from werkzeug.utils import secure_filename
+
+from procs.metrics import ScoreDoc
+from procs.textio import dump_data
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -17,6 +24,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config.from_object('config')
+BASE_PATH = path.dirname(path.abspath(__file__))
 #db = SQLAlchemy(app)
 
 # Automatically tear down SQLAlchemy.
@@ -47,29 +55,35 @@ def login_required(test):
 def home():
     return render_template('home.html')
 
+
 @app.route('/process_job_info', methods=["POST"])
 def process_job_info():
 
     submitted = request.form
-    job_link = submitted["JobLink"]
-
-    job_link += ".json"
+    job_link = submitted["JobLink"] + ".json"
+    file = request.files['file']
 
     # TOOD: do requests json on this link, make sure to handle
     # invalid links.
 
     # ALLOWED_EXTENSIONS = set(['pdf'])
 
-    file = request.files['file']
-    if file:
+    response = json.loads(requests.get(job_link).text)
+    soup = BeautifulSoup(response["description"], "html.parser")
+    doc_path = path.join(BASE_PATH, "uploads", file.filename)
+    file.save(doc_path)
 
-        path = "/Users/jaime/Downloads/Jam/uploads"
+    corpora_path = "job_desc.txt"
 
-        print(file.save(os.path.join(path, file.filename)))
+    with open(corpora_path, "w") as dump_file:
+        dump_file.write(soup.get_text().encode("utf-8"))
 
+    obj = ScoreDoc(doc_path, [corpora_path], ".")
+    obj.generate_tfidf()
+    tfidf_data = obj.get_score()
 
+    return json.dumps(tfidf_data)
 
-    return render_template('')
 
 @app.route('/job_results')
 def job_results():
@@ -103,7 +117,7 @@ def job_results():
 
 @app.errorhandler(500)
 def internal_error(error):
-    #db_session.rollback()
+    # db_session.rollback()
     return render_template('500.html'), 500
 
 
@@ -111,10 +125,12 @@ def internal_error(error):
 def not_found_error(error):
     return render_template('404.html'), 404
 
+
 if not app.debug:
     file_handler = FileHandler('error.log')
     file_handler.setFormatter(
-        Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+        Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
     )
     app.logger.setLevel(logging.INFO)
     file_handler.setLevel(logging.INFO)
