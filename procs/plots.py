@@ -18,7 +18,7 @@ def plot_tfidf(data):
 
     plt.barh(y_pos, y, align="center", alpha=0.5)
     plt.yticks(y_pos, x)
-    plt.ylabel("TF-IDF Score")
-    plt.title("Terms")
+    plt.title("TF-IDF Score")
+    plt.ylabel("Terms")
 
     plt.show()
