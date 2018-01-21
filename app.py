@@ -11,10 +11,10 @@ from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, url_for
 from forms import *
 import requests
-# from flask.ext.sqlalchemy import SQLAlchemy
 
 from werkzeug.utils import secure_filename
 
+from config import BASE_PATH, UPLOAD_FOLDER
 from procs.metrics import ScoreDoc
 from procs.textio import dump_data
 
@@ -24,8 +24,6 @@ from procs.textio import dump_data
 
 app = Flask(__name__)
 app.config.from_object('config')
-BASE_PATH = path.dirname(path.abspath(__file__))
-#db = SQLAlchemy(app)
 
 # Automatically tear down SQLAlchemy.
 '''
@@ -64,9 +62,8 @@ def process_job_info():
 
     response = json.loads(requests.get(job_link).text)
     soup = BeautifulSoup(response["description"], "html.parser")
-    doc_path = path.join(BASE_PATH, "uploads", file.filename)
 
-    print(doc_path)
+    doc_path = path.join(UPLOAD_FOLDER, file.filename)
 
     file.save(doc_path)
 
@@ -78,11 +75,6 @@ def process_job_info():
     obj = ScoreDoc(doc_path, [corpora_path], BASE_PATH)
     obj.generate_tfidf()
     tfidf_data = obj.get_score()
-
-    import pprint
-    pprint.pprint("tfidf_data")
-
-    # MAKE SURE TO CREATE UPLOADS FOLDER
 
     return render_template('results.html', results=tfidf_data)
     # return json.dumps(tfidf_data)

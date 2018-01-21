@@ -74,13 +74,16 @@ class ScoreDoc(object):
         tfidf_scores = zip(
             feature_index, (self.tfidf_matrix[0, i] for i in feature_index)
         )
-        tfidf_scores_feats = dict(
+        tfidf_scores_feats = (
             (self.feature_names[i], s) for (i, s) in tfidf_scores
+        )
+        tfidf_scores_feats = sorted(
+            tfidf_scores_feats, reverse=True, key=lambda x: x[-1]
         )
 
         if (not top_tfidf):
 
-            scores = tfidf_scores_feats.values()
+            scores = [i[-1] for i in tfidf_scores_feats]
             return {
                 "cos_sim": list(cos_sim),
                 "top_docs": resume_names,
@@ -127,4 +130,4 @@ if __name__ == '__main__':
     obj.generate_tfidf(ignore_terms=IGNORE_TERMS)
     tfidf_data = obj.get_score()
     dump_data(tfidf_data, "resume_scores.json")
-    plot_tfidf(tfidf_data)
+    # plot_tfidf(tfidf_data)
