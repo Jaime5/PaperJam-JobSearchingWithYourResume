@@ -12,25 +12,50 @@ Colors from PennApps
 
 {% include "navbar.html" %}
 
-<div class="jumbotron">
-    <h1>Jam!</h1>
-    <p>
-    Let us help you get apply to the job you match
-    most closely and land you a job! :)
-    </p>
+<div id="loading" style="width: 1024px;
+                        height: 1024px;
+                        display: none;
+                        margin:0;
+                        background: url('../static/img/pacman.gif') no-repeat;
+                        cursor: wait;">
+                            <h1 class="text-center">Loading ...</h1>
+                        </div>
+
+<div id="content">
+    <div class="jumbotron">
+        <h1>Jam!</h1>
+        <p>
+        Let us help you get apply to the job you match
+        most closely and land you a job! :)
+        p</p>
+    </div>
+
+    <form action="/process_job_info" method="POST" enctype=multipart/form-data>
+        <div class="form-group">
+            <label for="JobLink">Job link, can be any</label>
+            <input type="text" class="form-control" name="JobLink" placeholder="Job Description Link (Use Github Jobs :)">
+        </div>
+        <div class="form-group">
+            <label for="InputFile">Attach resume (PDF only)</label>
+            <input type="file" id="InputFile" name="file">
+        </div>
+        <button type="submit" class="btn btn-default" onclick="loading();">
+            See your score!
+        </button>
+        </form>
+    </div>
 </div>
 
-<form action="/process_job_info" method="POST" enctype=multipart/form-data>
-    <div class="form-group">
-        <label for="JobLink">Job link, can be any</label>
-        <input type="text" class="form-control" name="JobLink" placeholder="Job Description Link">
-    </div>
-    <div class="form-group">
-        <label for="InputFile">Attach resume (PDF only)</label>
-        <input type="file" id="InputFile" name="file">
-    </div>
-    <button type="submit" class="btn btn-default">See your score!</button>
-    </form>
-</div>
+
+ <script type="text/javascript">// <![CDATA[
+        function loading(){
+            $("#loading").show();
+            $("#content").hide();
+        }
+// ]]></script>
+
+
+
+
 
 {% endblock %}

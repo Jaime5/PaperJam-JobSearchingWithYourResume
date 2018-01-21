@@ -56,16 +56,15 @@ def home():
 
 @app.route('/process_job_info', methods=["POST"])
 def process_job_info():
-
     submitted = request.form
     job_link = submitted["JobLink"] + ".json"
     file = request.files['file']
 
-    # ALLOWED_EXTENSIONS = set(['pdf'])
-
     response = json.loads(requests.get(job_link).text)
     soup = BeautifulSoup(response["description"], "html.parser")
+
     doc_path = path.join(UPLOAD_FOLDER, file.filename)
+
     file.save(doc_path)
 
     corpora_path = "job_desc.txt"
@@ -80,11 +79,6 @@ def process_job_info():
     return render_template('results.html', results=tfidf_data)
     # return json.dumps(tfidf_data)
 
-
-@app.route('/job_results')
-def job_results():
-    # TODO: Pass back what was calculated using pasbacks
-    return None
 
 # @app.route('/about')
 # def about():
