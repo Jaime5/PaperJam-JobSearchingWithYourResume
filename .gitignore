@@ -2,5 +2,6 @@
 .DS_Store
 *venv/
 *en/
+env
 uploads/
 job_desc.txt
