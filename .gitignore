@@ -1,4 +1,6 @@
 *.pyc
 .DS_Store
-env
-*venv
+*venv/
+*en/
+uploads/
+job_desc.txt
