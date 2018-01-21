@@ -1,0 +1,342 @@
+===========
+pyspotlight
+===========
+
+is a thin python wrapper around `DBpedia Spotlight`_'s `REST Interface`_.
+
+This package is tested against DBpedia Spotlight version 0.7.
+As long as there are no major API overhauls, this wrapper might also
+work with future versions. If you encounter a bug with a newer DBpedia Spotlight version,
+feel free to create an issue here on github.
+
+Note that we're trying to track DBpedia Spotlight release version numbers, so you can
+easily see which pyspotlight version has been tested with which Spotlight
+release. For example, all pyspotlight 0.6.x releases are compatible with
+Spotlight 0.6.x, etc. While we aim for backwards-compatibility with older
+Spotlight releases, it is not guaranteed. If you're using an older Spotlight
+version, you may need to use an older pyspotlight version as well.
+
+.. _`DBpedia Spotlight`: http://www.dbpedia-spotlight.org/faq
+.. _`REST Interface`: http://www.dbpedia-spotlight.org/api
+
+Installation
+============
+
+The newest stable release can be found on the `Python Package Index (PyPI) <https://pypi.python.org/pypi>`__.
+
+Therefore installation is as easy as::
+
+    pip install pyspotlight
+
+Older releases can be installed by specifying a version::
+
+    pip install pyspotlight~=0.6.1
+
+Requirements for installation from source/github
+================================================
+
+This module has been tested with Python 2.7 and Python 3.5.
+
+As long as you use the ``setup.py`` for the installation
+(``python setup.py install``), you'll be fine because Python takes care of the
+dependencies for you.
+
+If you decide not to use the ``setup.py`` you will need the ``requests``
+library.
+
+All of these packages can be found on the `Python PackageIndex`_ and easily
+installed via either ``easy_install`` or, `the recommended`_, ``pip``.
+
+Using ``pip`` it is especially easy because you can just do this::
+
+    pip install -r requirements.txt
+
+and it will install all package dependencies listed in that file.
+
+.. _`Python PackageIndex`: http://pypi.python.org/
+.. _`the recommended`: http://stackoverflow.com/questions/3220404/why-use-pip-over-easy-install
+
+Usage
+=====
+
+Usage is simple and easy, just as the API is::
+
+    >>> import spotlight
+    >>> annotations = spotlight.annotate('http://localhost/rest/annotate',
+    ...                                  'Your test text',
+    ...                                  confidence=0.4, support=20)
+
+This should return a list of all resources found within the given text.
+Assuming we did this for the following text::
+
+    President Obama on Monday will call for a new minimum tax rate for individuals making more than $1 million a year to ensure that they pay at least the same percentage of their earnings as other taxpayers, according to administration officials.
+
+We might get this back::
+
+    >>> spotlight.annotate('http://localhost/rest/annotate', sample_txt)
+    [
+      {
+        'URI': 'http://dbpedia.org/resource/Presidency_of_Barack_Obama',
+        'offset': 0,
+        'percentageOfSecondRank': -1.0,
+        'similarityScore': 0.10031112283468246,
+        'support': 134,
+        'surfaceForm': 'President Obama',
+        'types': 'DBpedia:OfficeHolder,DBpedia:Person,Schema:Person,Freebase:/book/book_subject,Freebase:/book,Freebase:/book/periodical_subject,Freebase:/media_common/quotation_subject,Freebase:/media_common'
+      },
+      …(truncated remaining elements)…
+    ]
+
+Any additional filter parameters that are supported by the Spotlight API
+can be passed to the ``filters`` argument in a dictionary.
+
+For example::
+
+    >>> only_person_filter = {
+    ...     'policy': "whitelist",
+    ...     'types': "DBpedia:Person",
+    ...     'coreferenceResolution': False
+    ... }
+
+    >>> spotlight.annotate(
+    ...     "http://localhost/rest/annotate",
+    ...     "Any collaboration between Shakira and Metallica seems highly unlikely.",
+    ...     filters=only_person_filter
+    ... )
+
+    [{
+        'URI': 'http://dbpedia.org/resource/Shakira',
+        'offset': 26,
+        'percentageOfSecondRank': 1.511934771738109e-09,
+        'similarityScore': 0.9999999984880361,
+        'support': 2587,
+        'surfaceForm': 'Shakira',
+        'types': 'Schema:MusicGroup,DBpedia:Agent,Schema:Person,DBpedia:Person,DBpedia:Artist,DBpedia:MusicalArtist'
+    }]
+
+The same parameters apply to the ``spotlight.candidates`` function,
+which returns a list of all matching candidate entities rather than
+only the top candidate.
+
+Note that the Spotlight API may support other interfaces that have not been
+implemented in pyspotlight. Feel free to contribute :-)!
+
+Running DBpedia Spotlight
+-----------------------------
+If you just want to play around with Spotlight, there is an interactive demo
+available at `demo.dbpedia-spotlight.org`_. To submit pyspotlight
+requests to the demo servers, you may use the endpoints found in `sites.xml`_.
+
+.. _demo.dbpedia-spotlight.org : http://demo.dbpedia-spotlight.org/
+.. _sites.xml: http://demo.dbpedia-spotlight.org/config/sites.xml
+
+For any significant Spotlight usage, it is strongly recommended to run
+your own server. Please follow the `installation instructions`_.
+
+.. _installation instructions: http://www.dbpedia-spotlight.org/faq#i-want-to-install-the-tool-how-do-i-do
+
+Exceptions
+----------
+The following exceptions can occur:
+
+* ``ValueError`` when:
+
+  - the JSON response could not be decoded.
+
+* ``SpotlightException`` when:
+
+  - the JSON response did not contain any needed fields or was not formed as
+    excepted.
+  - You forgot to explicitly specify a protocol (http/https) in the API URL.
+
+  Usually the exception's message tells you *exactly* what is wrong. If
+  not, we might have forgotten some error handling. So just open up an issue on
+  github if you encounter unexpected exceptions.
+
+* ``requests.exceptions.HTTPError``
+
+  Is thrown when the response http status code was *not* ``200``. This could happen
+  if you have a load balancer like nginx in front of your spotlight cluster and
+  there is not a single server available, so nginx throws a ``502 Bad Gateway``.
+
+Tips
+====
+
+We highly recommend playing around with the *confidence* and *support* values.
+Furthermore it might be preferable to filter out more annotations by looking
+at their *similiarityScore* (read: contextual score).
+
+If you want to change the default values, feel free to use ``itertools.partial``
+to create a little wrapper with simplified signature::
+
+    >>> from spotlight import annotate
+    >>> from functools import partial
+    >>> api = partial(annotate, 'http://localhost/rest/annotate',
+    ...               confidence=0.4, support=20,
+    ...               spotter='SpotXmlParser')
+    >>> api('This is your test text. This function uses a non-default
+    ...      confidence, support, and spotter. Furthermore all calls go
+    ...      directly to localhost/rest/annotate.')
+
+As you can see this reduces the function's complexity greatly.
+Pyspotlight provides an interface based on functions rather than classes,
+to avoid an unnecessary layer of indirection.
+
+Tests
+=====
+
+If you want to run the tests, you will have to install ``nose2`` (~0.6) from PyPI.
+Then you can simply run ``nose2`` from the command line in
+this or the ``spotlight/`` directory.
+
+All development and regular dependencies can be installed with a single command::
+
+    pip install -r requirements-dev.txt
+
+
+Bugs
+====
+
+In case you spot a bug, please open an issue and attach the raw response you
+sent. Have a look at `ubergrape/pyspotlight#3`_ for an example on how to file a good bug report.
+
+.. _`ubergrape/pyspotlight#3`: https://github.com/ubergrape/pyspotlight/issues/3
+
+
+Changelog
+=========
+
+v0.7.2 (2017-12-02)
+-------------------
+
+- Updated README instructions and links. [Alex Olieman]
+
+- Ensure that ``candidates`` returns surface forms as strings. [Alex Olieman]
+
+- Ensure that surface forms are always strings (merge `PR #1`_). [ShomyLiu & Alex Olieman]
+
+.. _PR #1: https://github.com/aolieman/pyspotlight/pull/1
+
+v0.7.1 (2016-07-25)
+-------------------
+
+- Moved the shared request logic in ``annotate`` and ``candidates`` to a
+  helper function. [Alex Olieman]
+
+- Updated setup/package files [Alex Olieman]
+
+- Updated README. [Luis Nell & Alex Olieman]
+
+v0.7.0 (2016-07-18)
+-------------------
+
+API Changes
+~~~~~~~~~~~
+
+- Changed default spotter to ``'Default'`` for 0.7 compatibility. [Alex
+  Olieman]
+
+- Moved filter parameters into a ``filters`` argument. [Alex Olieman]
+
+  * **Removed** the ``policy`` argument from ``annotate`` and ``candidates``.
+  * Added a types parameter, which enables server-side filtering of resources.
+    It also makes for a nice addition to the policy parameter.
+
+Additions
+~~~~~~~~~
+
+- Python 3 compatibility. [Alex Olieman]
+
+- Moved to nose2 for tests. [Alex Olieman]
+
+Fixes
+~~~~~
+
+- Updated required version of the requests package. [Alex Olieman]
+
+- Remove mutable default arguments. [Luis Nell]
+
+v0.6.5.2 (2013-08-27)
+---------------------
+
+- Add manifest so README is included on PyPI. [Luis Nell]
+
+v0.6.5.1 (2013-08-12)
+---------------------
+
+- Update README for PyPI release. [Luis Nell]
+
+- Upgrade to requests 1.2.3. [Luis Nell]
+
+- BSD License. [Luis Nell]
+
+- Workaround for footnotes in ``surfaceForm`` that get parsed as a list.
+  [Luis Nell]
+
+- Do not assume in ``candidates`` that ``surfaceForm`` is always a list.
+  [Luis Nell]
+
+v0.6.5 (2012-10-07)
+-------------------
+
+API Changes
+~~~~~~~~~~~
+
+- Have to explicitly provide a protocol in the URL. [Luis Nell]
+
+Additions
+~~~~~~~~~
+
+- Added stuff for testing. [Luis Nell]
+
+- Add requirements.txt for pip. [Luis Nell]
+
+- Make use of requests builtin json decoding. [Luis Nell]
+
+Fixes
+~~~~~
+
+- Some README updates. [Luis Nell]
+
+- Add ordereddict requirement for py2.6. [Luis Nell]
+
+- Tests: adapt to the requests raw handling. [Luis Nell]
+
+- Use requests 0.14.1 from now on. [Luis Nell]
+
+- Fixed typos, wrong link. [Pablo Mendes]
+
+  * Minor: We spell it DBpedia, not DBPedia :)
+  * Fix: Link pointed to OpenCalais, a commercial closed-source
+    alternative to DBpedia Spotlight
+
+v0.5.3 (2012-08-01)
+-------------------
+
+- Update README to reflect the exception changes. [Luis Nell]
+
+- Raise requests.exceptions.HTTPError on response.status_code != 200.
+  [Luis Nell]
+
+- Prefer simplejson to json. [Luis Nell]
+
+- Add tests for new exception handling. [Luis Nell]
+
+- Add Exception Handling. [Luis Nell]
+
+v0.5.2 (2012-04-06)
+-------------------
+
+- Fixes setup.py issues. v0.5.2. [Luis Nell]
+
+v0.5.1 (2012-03-21)
+-------------------
+
+- Fix setup.py - push 0.5.1. [Luis Nell]
+
+v0.5.0 (2012-03-20)
+-------------------
+
+- Init. [Luis Nell]
+
+

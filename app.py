@@ -2,12 +2,14 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 # from flask.ext.sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from forms import *
 import os
+
+from werkzeug.utils import secure_filename
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -43,30 +45,58 @@ def login_required(test):
 
 @app.route('/')
 def home():
-    return render_template('pages/placeholder.home.html')
+    return render_template('home.html')
+
+@app.route('/process_job_info', methods=["POST"])
+def process_job_info():
+
+    submitted = request.form
+    job_link = submitted["JobLink"]
+
+    job_link += ".json"
+
+    # TOOD: do requests json on this link, make sure to handle
+    # invalid links.
+
+    # ALLOWED_EXTENSIONS = set(['pdf'])
+
+    file = request.files['file']
+    if file:
+
+        path = "/Users/jaime/Downloads/Jam/uploads"
+
+        print(file.save(os.path.join(path, file.filename)))
 
 
-@app.route('/about')
-def about():
-    return render_template('pages/placeholder.about.html')
+
+    return render_template('')
+
+@app.route('/job_results')
+def job_results():
+    # TODO: Pass back what was calculated using pasbacks
+    return None
+
+# @app.route('/about')
+# def about():
+#     return render_template('how.html')
 
 
-@app.route('/login')
-def login():
-    form = LoginForm(request.form)
-    return render_template('forms/login.html', form=form)
+# @app.route('/login')
+# def login():
+#     form = LoginForm(request.form)
+#     return render_template('forms/login.html', form=form)
 
 
-@app.route('/register')
-def register():
-    form = RegisterForm(request.form)
-    return render_template('forms/register.html', form=form)
+# @app.route('/register')
+# def register():
+#     form = RegisterForm(request.form)
+#     return render_template('forms/register.html', form=form)
 
 
-@app.route('/forgot')
-def forgot():
-    form = ForgotForm(request.form)
-    return render_template('forms/forgot.html', form=form)
+# @app.route('/forgot')
+# def forgot():
+#     form = ForgotForm(request.form)
+#     return render_template('forms/forgot.html', form=form)
 
 # Error handlers.
 
@@ -74,12 +104,12 @@ def forgot():
 @app.errorhandler(500)
 def internal_error(error):
     #db_session.rollback()
-    return render_template('errors/500.html'), 500
+    return render_template('500.html'), 500
 
 
 @app.errorhandler(404)
 def not_found_error(error):
-    return render_template('errors/404.html'), 404
+    return render_template('404.html'), 404
 
 if not app.debug:
     file_handler = FileHandler('error.log')
@@ -98,10 +128,3 @@ if not app.debug:
 # Default port:
 if __name__ == '__main__':
     app.run()
-
-# Or specify port manually:
-'''
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-'''
